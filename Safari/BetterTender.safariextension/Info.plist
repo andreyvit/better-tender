@@ -54,6 +54,6 @@
 	<key>Update Manifest URL</key>
 	<string>http://files.tarantsov.com/BetterTender/BetterTender-Safari-update.plist</string>
 	<key>Website</key>
-	<string>http://tarantsov.com/</string>
+	<string>https://github.com/andreyvit/better-tender</string>
 </dict>
 </plist>
