@@ -6,7 +6,9 @@ Safari and Chrome extensions to make [Tender](http://tenderapp.com) more tolerab
 Provides the following improvements:
 
 1. In-place discussions on your dashboard — click a discussion to collapse or expand it.
-2. “Insert KB article” popup saves time when you need to link to an existing article — either from a discussion page or from another KB article.
+2. ”Link to KB article” and “Inline KB article” popups save time on hunting down articles and copying their URLs or content.
+
+Tip: create a Canned Responses category, fill it with draft articles and use it with “Inline KB article” command — hurray, canned responses in Tender!
 
 ![Screenshot](http://files.tarantsov.com/BetterTender/assets/BetterTender-preview.png)
 
