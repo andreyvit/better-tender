@@ -1,16 +1,16 @@
 
 ExtVersion = '1.0.1'
 
-insertText = (textArea, text) ->
+insertText = (textArea, prefix, selected, postfix) ->
   startPos  = textArea.selectionStart
   endPos    = textArea.selectionEnd
   scrollTop = textArea.scrollTop
 
-  textArea.value = textArea.value.substring(0, startPos) + text + textArea.value.substring(endPos, textArea.value.length)
+  textArea.value = textArea.value.substring(0, startPos) + prefix + selected + postfix + textArea.value.substring(endPos, textArea.value.length)
 
   textArea.focus()
-  textArea.selectionStart = startPos + text.length
-  textArea.selectionEnd   = startPos + text.length
+  textArea.selectionStart = startPos + prefix.length
+  textArea.selectionEnd   = startPos + prefix.length + selected.length
   textArea.scrollTop      = scrollTop
 
 removeNode = (node) ->
@@ -74,7 +74,8 @@ class ExtInjected
   receive: (eventName, data) ->
     switch eventName
       when 'kbLoaded'
-        @faqs = data.faqs
+        @faqs     = data.faqs
+        @sections = data.sections
 
         @inject()
       when 'error'
@@ -97,32 +98,57 @@ class ExtInjected
   injectionParentNode: ->
     document.querySelector("dl.formrow.article .inlineactions") || document.querySelector("div#main-fields")
 
-  inject: ->
-    if actionsNode = @injectionParentNode()
-      removeNode @select if @select
+  createFaqSelector: (prompt, callback) ->
+    select = document.createElement("select")
+    option = document.createElement("option")
+    option.appendChild(document.createTextNode(prompt))
+    option.value = '0'
+    select.appendChild(option)
 
-      @select = select = document.createElement("select")
+    sectionsByHref = {}
+    for section in @sections
+      section.faqs = []
+      sectionsByHref[section.href] = section
 
-      option = document.createElement("option")
-      option.appendChild(document.createTextNode("— Insert KB link —"))
-      option.value = '0'
-      select.appendChild(option)
+    @faqsByHref = {}
+    for faq in @faqs
+      @faqsByHref[faq.html_href] = faq
+      if section = sectionsByHref[faq.section_href]
+        section.faqs.push faq
 
-      for faq in @faqs
+    for section in @sections
+      optgroup = document.createElement("optgroup")
+      optgroup.label = section.title
+      select.appendChild(optgroup)
+
+      for faq in section.faqs
         option = document.createElement("option")
         option.appendChild(document.createTextNode(faq.title))
         option.value = faq.html_href
-        select.appendChild(option)
+        optgroup.appendChild(option)
 
-      actionsNode.insertBefore select, actionsNode.firstChild
-
-      select.addEventListener 'change', =>
-        if (index = select.selectedIndex) > 0
-          faq = @faqs[index - 1]
-          console.log "Inserting: #{faq.html_href}"
-
-          if textArea = document.querySelector("textarea")
-            insertText textArea, "[#{faq.title}](#{faq.html_href})"
-
+    select.addEventListener 'change', =>
+      if (index = select.selectedIndex) > 0
+        if faq = @faqsByHref[select.value]
+          console.log "Selected: #{faq.html_href}"
+          callback(faq)
           select.selectedIndex = 0
-      , false
+    , false
+
+    return select
+
+  inject: ->
+    if actionsNode = @injectionParentNode()
+      removeNode @select if @select
+      @select = @createFaqSelector "— Link to KB article —", (faq) =>
+        if textArea = document.querySelector("textarea")
+          insertText textArea, "[", "#{faq.title}", "](#{faq.html_href})"
+      actionsNode.insertBefore @select, actionsNode.firstChild
+
+      if document.querySelector("div#main-fields")
+        # we're on discussion page; add a control to insert entire KB contents
+        removeNode @select2 if @select2
+        @select2 = @createFaqSelector "— Inline KB article —", (faq) =>
+          if textArea = document.querySelector("textarea")
+            insertText textArea, "", faq.body.trim(), "\n"
+        actionsNode.insertBefore @select2, @select.nextSibling

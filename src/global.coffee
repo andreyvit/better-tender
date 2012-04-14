@@ -1,4 +1,45 @@
 
+class Tender
+  constructor: (@apiKey, @subdomain) ->
+
+  load: (url, callback) ->
+    url = "https://api.tenderapp.com/#{@subdomain}/#{url}"
+    console.log "Loading #{url}..."
+    xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = =>
+      console.log "onreadystatechange"
+      if xhr.readyState is XMLHttpRequest.DONE and xhr.status is 200
+        console.log "Success!"
+        response = JSON.parse(xhr.responseText)
+        console.log response
+
+        callback(null, response)
+    xhr.onerror = (event) =>
+      console.log "Error! ", event
+      callback(event)
+    xhr.open("GET", url, true)
+    xhr.setRequestHeader 'Accept', 'application/vnd.tender-v1+json'
+    xhr.setRequestHeader 'X-Tender-Auth', @apiKey
+    xhr.send(null)
+
+  loadList: (url, key, callback) ->
+    items = []
+
+    query = (page) =>
+      @load "#{url}?page=#{page}", (err, response) =>
+        return callback(err) if err
+
+        items.push.apply(items, response[key])
+
+        if response.offset + response.per_page < response.total
+          query(page + 1)
+        else
+          callback(null, items)
+
+    query(1)
+
+
+
 class Site
   constructor: (@host) ->
     @components = @host.split('.').reverse()
@@ -8,10 +49,43 @@ class Site
       @subdomain = @components[1]
 
     @apiKey = null
-    @kb = null
+
+    @faqs = null
+    @sections = null
+    @kbCallbacks = null
+
+  loadKb: (thisCallback) ->
+    if @faqs && @sections
+      thisCallback(null, { @faqs, @sections })
+
+    if @kbCallbacks
+      @kbCallbacks.push thisCallback
+    else
+      @kbCallbacks = [thisCallback]
+
+      @tender ||= new Tender(@apiKey, @subdomain)
+      @tender.loadList "sections", 'sections', (err, sections) =>
+        if err
+          for callback in @kbCallbacks
+            callback(err)
+          @kbCallbacks = null
+        else
+          @sections = sections
+
+          @tender.loadList "faqs", 'faqs', (err, faqs) =>
+            if err
+              for callback in @kbCallbacks
+                callback(err)
+              @kbCallbacks = null
+            else
+              @faqs = faqs
+              for callback in @kbCallbacks
+                callback(null, { @faqs, @sections })
+              @kbCallbacks = null
 
 
 Sites = {}
+
 
 class ExtTab
   constructor: (@tab) ->
@@ -31,26 +105,12 @@ class ExtTab
         @site.apiKey = data.apiKey
         @loadKb()
 
-
   loadKb: ->
-    if @site.kb
-      @send 'kbLoaded', @site.kb
-
-    console.log "Sending AJAX request..."
-    xhr = new XMLHttpRequest()
-    xhr.onreadystatechange = =>
-      console.log "onreadystatechange"
-      if xhr.readyState is XMLHttpRequest.DONE and xhr.status is 200
-        console.log "Success!"
-        @site.kb = JSON.parse(xhr.responseText)
-        @send 'kbLoaded', @site.kb
-    xhr.onerror = (event) =>
-      console.log "Error! ", event
-      @send 'error', event
-    xhr.open("GET", "https://api.tenderapp.com/#{@site.subdomain}/faqs", true)
-    xhr.setRequestHeader 'Accept', 'application/vnd.tender-v1+json'
-    xhr.setRequestHeader 'X-Tender-Auth', @site.apiKey
-    xhr.send(null)
+    @site.loadKb (err, result) =>
+      if err
+        @send 'error', err
+      else
+        @send 'kbLoaded', result
 
 
 ExtGlobal =
