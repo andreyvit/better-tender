@@ -1,5 +1,5 @@
 
-ExtVersion = '1.0.0'
+ExtVersion = '1.0.1'
 
 insertText = (textArea, text) ->
   startPos  = textArea.selectionStart
