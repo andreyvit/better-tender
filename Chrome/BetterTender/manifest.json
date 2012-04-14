@@ -9,7 +9,6 @@
     }
   ],
   "permissions": [
-    "experimental",
     "tabs",
     "http://*.tenderapp.com/*",
     "https://*.tenderapp.com/*",
@@ -17,6 +16,5 @@
     "https://help.livereload.com/*"
   ],
   "icons": { "48": "BetterTender-48.png",
-            "128": "BetterTender-112.png" },
-  "update_url": "http://files.tarantsov.com/BetterTender/BetterTender-Chrome-update.xml"
+            "128": "BetterTender-112.png" }
 }

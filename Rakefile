@@ -84,13 +84,22 @@ end
 
 desc "Pack Chrome extension"
 task :chrome => :build do |task|
-    full_ext = File.expand_path('Chrome/BetterTender')
-    full_pem = File.expand_path('Chrome/BetterTender.pem')
-    sh '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        "--pack-extension=#{full_ext}", "--pack-extension-key=#{full_pem}"
+    # full_ext = File.expand_path('Chrome/BetterTender')
+    # full_pem = File.expand_path('Chrome/BetterTender.pem')
+    # sh '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    #     "--pack-extension=#{full_ext}", "--pack-extension-key=#{full_pem}"
+    # mkdir_p "dist/#{version}"
+    # mv "Chrome/BetterTender.crx", "dist/#{version}/BetterTender.crx"
+    # sh 'open', '-R', File.expand_path("dist/#{version}/BetterTender.crx")
+
     mkdir_p "dist/#{version}"
-    mv "Chrome/BetterTender.crx", "dist/#{version}/BetterTender.crx"
-    sh 'open', '-R', File.expand_path("dist/#{version}/BetterTender.crx")
+    zip_file = File.expand_path("dist/#{version}/BetterTender-#{version}-Chrome.zip")
+
+    Dir.chdir 'Chrome' do
+        sh 'zip', '-r', zip_file, 'BetterTender'
+    end
+
+    sh 'open', '-R', zip_file
 end
 
 task :all => [:chrome]

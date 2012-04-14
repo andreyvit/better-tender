@@ -16,7 +16,7 @@ Tip: create a Canned Responses category, fill it with draft articles and use it 
 Installation
 ------------
 
-Download [Safari](http://files.tarantsov.com/BetterTender/1.0.1/BetterTender-1.0.1.safariextz) or [Chrome](http://files.tarantsov.com/BetterTender/1.0.1/BetterTender.crx) extension.
+Download [Safari](http://files.tarantsov.com/BetterTender/1.0.1/BetterTender-1.0.1.safariextz) or [Chrome](https://chrome.google.com/webstore/detail/bahlbhnfdbfmmdedjoofflpmpejofnem/) extension.
 
 
 Caveats
