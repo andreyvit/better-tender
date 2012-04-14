@@ -17,6 +17,12 @@ Installation
 Download [Safari](http://files.tarantsov.com/BetterTender/1.0.0/BetterTender-1.0.0.safariextz) or [Chrome](http://files.tarantsov.com/BetterTender/1.0.0/BetterTender.crx) extension.
 
 
+Caveats
+-------
+
+Only works with `something.tenderapp.com` URLs.
+
+
 License
 -------
 
