@@ -2,3 +2,4 @@
 *.js
 *.pem
 /dist
+/Aux
