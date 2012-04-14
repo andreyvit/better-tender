@@ -1,0 +1,4 @@
+*.sublime-*
+*.js
+*.pem
+/dist

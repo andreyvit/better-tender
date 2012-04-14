@@ -1,0 +1,22 @@
+{
+  "name": "BetterTender",
+  "version": "1.0.0",
+  "background_page": "background.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["injected.js"]
+    }
+  ],
+  "permissions": [
+    "experimental",
+    "tabs",
+    "http://*.tenderapp.com/*",
+    "https://*.tenderapp.com/*",
+    "http://help.livereload.com/*",
+    "https://help.livereload.com/*"
+  ],
+  "icons": { "48": "icon48.png",
+            "128": "icon128.png" },
+  "update_url": "http://files.tarantsov.com/BetterTender/BetterTender-Chrome-update.xml"
+}
